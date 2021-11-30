@@ -4,9 +4,7 @@ import InputFields from './InputFields';
 
 const reportTypes = require('../../assets/reportTypes.json');
 
-const SearchForm = ({ type, loading, setType, updateFields, handleSubmit }) => {
-  
-  const [name, setName] = useState('');
+const SearchForm = ({ reportDetails: {type, name}, setReportDetails, loading, updateFields, handleSubmit }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggle = () => {
@@ -14,8 +12,10 @@ const SearchForm = ({ type, loading, setType, updateFields, handleSubmit }) => {
   };
 
   const selectType = (reportType, reportName) => {
-    setType(reportType);
-    setName(reportName);
+    setReportDetails({
+      name: reportName,
+      type: reportType
+    });
   };
 
   const searchFields = type.length ? <InputFields type={type} name={name} updateFields={updateFields} handleSubmit={handleSubmit}/> : "";
@@ -24,7 +24,7 @@ const SearchForm = ({ type, loading, setType, updateFields, handleSubmit }) => {
     return (
       <Container>
         <h1>Loading...</h1>
-        <Spinner>Loading...</Spinner>
+        <Spinner></Spinner>
       </Container>
     )
   };

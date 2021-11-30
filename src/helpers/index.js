@@ -24,17 +24,18 @@ const getDays = (month, year) => {
 const getDateItems = date => {
   const split = date.split("-");
   return {
-    month: split[0],
-    day: split[1],
-    year: split[2]
+    year: split[0],
+    month: split[1],
+    day: split[2]
   };
 };
 
-const createRange = (name, { start, end }, type) => {
+const createRange = (name, start, end, type) => {
+  console.log(name, start, end, type)
   let template, startDate, endDate, fileName, first, last;
   const fileArray = [];
 
-  if (type === 'date-based') {
+  if (type === 'date') {
     startDate = getDateItems(start);
     endDate = getDateItems(end);
     first = startDate.day;
@@ -62,7 +63,6 @@ const createRange = (name, { start, end }, type) => {
 
 };
 
-
 const createRequest = async (filename, merchantAccount, wsUser, wsPassword) => {
   try {
     const options = {
@@ -78,11 +78,13 @@ const createRequest = async (filename, merchantAccount, wsUser, wsPassword) => {
   //"https:\/\/ca-test.adyen.com\/reports\/download\/MerchantAccount\/[merchantAccountCode]\/settlement_detail_report_batch_12.csv"
 };
 
-const fetchReports = async (name, range, type, merchantAccount, wsUser, wsPassword) => {
-  const fileNames = createRange(name, range, type);
-  return Promise.all(fileNames.map(async filename => {
-    return createRequest(filename, merchantAccount, wsUser, wsPassword);
-  }));
+const fetchReports = async ({name, type}, {merchantAccount, username, password, start, end }) => {
+  const fileNames = createRange(name, start, end, type);
+  console.log(fileNames);
+  return;
+  // return Promise.all(fileNames.map(async filename => {
+  //   return createRequest(filename, merchantAccount, username, password);
+  // }));
 };
 
 export {

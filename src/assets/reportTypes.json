@@ -1,10 +1,10 @@
 [
   {
     "name": "Settlement details report",
-    "type": "batch-based"
+    "type": "batch"
   },
   {
     "name": "Marketplace payments accounting report",
-    "type": "date-based"
+    "type": "date"
   }
 ]

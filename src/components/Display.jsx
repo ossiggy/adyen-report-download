@@ -5,8 +5,11 @@ import { fetchReports } from '../helpers';
 
 const Display = () => {
   const [loading, setLoading] = useState(false);
-  const [type, setType] = useState('');
   const [report, setReport] = useState(null);
+  const [reportDetails, setReportDetails] = useState({
+    name: '',
+    type: ''
+  });
   const [fields, setFields] = useState({
     merchantAccount: '',
     username: '',
@@ -23,26 +26,25 @@ const Display = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, start, end) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-
+      const response = await fetchReports(reportDetails, fields);
+      if (response) {
+        setLoading(false);
+      };
     } catch (err) {
       console.error('Error submitting request for reports', err.message);
     }
   };
 
-  if (report) {
-
-  }
-
   return (
     <Container>
       <SearchForm 
-        type={type}
-        setType={setType}
+        reportDetails={reportDetails}
+        setReportDetails={setReportDetails}
         loading={loading} 
         handleSubmit={handleSubmit} 
         updateFields={updateState}
