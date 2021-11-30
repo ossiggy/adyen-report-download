@@ -1,22 +1,22 @@
-const isLeapYear = year => ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+import request from "request-promise";
 
-const getDays = ({month, year}) => {
-  const thirty = ["4", "6", "9", "11"];
+const isLeapYear = year => ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
+
+const getDays = (month, year) => {
+  const thirty = ["04", "06", "09", "11"];
   const leapYear = isLeapYear(year)
+
   let daysOfMonth;
-  switch(month){
-    case month == "2" && leapYear:
+
+    if (month === "02" && leapYear) {
       daysOfMonth = 29;
-      break;
-    case month == "2" && !leapYear:
+    } else if (month === "02" && !leapYear) {
       daysOfMonth = 28;
-      break;
-    case thirty.includes(month):
+    } else if (thirty.includes(month)) {
       daysOfMonth = 30;
-      break;
-    default:
+    } else {
       daysOfMonth = 31;
-  }
+    };
 
   return daysOfMonth;
 };
@@ -30,34 +30,24 @@ const getDateItems = date => {
   };
 };
 
-const formatName = name => {
-  return name.replace("/ /g", "_").toLowerCase
-}
-
-const createDateRange = (name, {start, end}) => {
-  const startDate = getDateItems(start);
-  const endDate = getDateItems(end);
-  const fileName = formatName(name);
-
+const createRange = (name, { start, end }, type) => {
+  let template, startDate, endDate, fileName, first, last;
   const fileArray = [];
 
-  for(let i=Number(startDate.day); i<Number(endDate.day); i++){
-    let day;
-    if (i < 10) {
-      day = `0${i}`
-    } else {
-      day = `${i}`
-    }
-    fileArray.push(`${fileName}_${startDate.year}_${startDate.month}_${day}.csv`)
-  }
+  if (type === 'date-based') {
+    startDate = getDateItems(start);
+    endDate = getDateItems(end);
+    first = startDate.day;
+    last = endDate.day;
+    fileName = name.replace("/ /g", "_").toLowerCase;
+    template = `${fileName}_${startDate.year}_${startDate.month}`
+  } else {
+    first = start;
+    last = end;
+    template = `${name}`
+  };
 
-  return fileArray;
-};
-
-const createBatchRange = (name, {start, end}) => {
-  const fileArray = [];
-
-  for(let i=Number(start); i<Number(end); i++) {
+  for(let i=Number(first); i<Number(last); i++) {
     let batchNum;
     if (i < 10) {
       batchNum = `0${i}`
@@ -65,26 +55,37 @@ const createBatchRange = (name, {start, end}) => {
       batchNum = `${i}`
     }
 
-    fileArray.push(`${name}_${batchNum}.csv`)
+    fileArray.push(`${template}_${batchNum}.csv`)
   }
 
   return fileArray;
-}
 
-const createRequest = (name, range, type) => {
-  return fetch();
+};
+
+
+const createRequest = async (filename, merchantAccount, wsUser, wsPassword) => {
+  try {
+    const options = {
+      url: `https://${wsUser}:${wsPassword}@ca-test.adyen.com/reports/download/MerchantAccount/${merchantAccount}/${filename}`,
+      method: "GET",
+      json: true
+    };
+
+    return await request(options);
+  } catch (err) {
+    console.error('Error submitting request for', filename);
+  }
   //"https:\/\/ca-test.adyen.com\/reports\/download\/MerchantAccount\/[merchantAccountCode]\/settlement_detail_report_batch_12.csv"
 };
 
-const fetchReports = async (name, range, type) => {
-  let fileNames;
-  if (type === "date-based") {
-    fileNames = createDateRange(name, range);
-  } else {
-    fileNames = createBatchRange(name, range);
-  }
+const fetchReports = async (name, range, type, merchantAccount, wsUser, wsPassword) => {
+  const fileNames = createRange(name, range, type);
+  return Promise.all(fileNames.map(async filename => {
+    return createRequest(filename, merchantAccount, wsUser, wsPassword);
+  }));
 };
 
 export {
-  formatLabel
+  getDays,
+  fetchReports
 };
