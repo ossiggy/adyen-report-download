@@ -39,7 +39,7 @@ const SearchForm = ({ reportDetails: {type, name}, setReportDetails, loading, up
           {reportTypes.map(report => {
             console.log(report)
             return (
-              <DropdownItem key={report.name.replace(/ /g, "-")} onClick={() => selectType(report.type, report.name)}>
+              <DropdownItem key={report.name.replace(/\s/g, "-")} onClick={() => selectType(report.type, report.name)}>
                 {report.name}
               </DropdownItem>
             )

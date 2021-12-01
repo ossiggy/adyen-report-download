@@ -26,14 +26,14 @@ const Display = () => {
     }));
   };
 
-  const handleSubmit = async (e, start, end) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     try {
       const response = await fetchReports(reportDetails, fields);
       if (response) {
-        setLoading(false);
+        return setLoading(false);
       };
     } catch (err) {
       console.error('Error submitting request for reports', err.message);
@@ -43,11 +43,11 @@ const Display = () => {
   return (
     <Container>
       <SearchForm 
+        loading={loading}
+        handleSubmit={handleSubmit}
+        updateFields={updateState}
         reportDetails={reportDetails}
         setReportDetails={setReportDetails}
-        loading={loading} 
-        handleSubmit={handleSubmit} 
-        updateFields={updateState}
       />
     </Container>
   );

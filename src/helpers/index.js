@@ -1,5 +1,5 @@
 import request from "request-promise";
-
+import { API_BASE_URL } from "../config";
 const isLeapYear = year => ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
 
 const getDays = (month, year) => {
@@ -40,7 +40,7 @@ const createRange = (name, start, end, type) => {
     endDate = getDateItems(end);
     first = startDate.day;
     last = endDate.day;
-    fileName = name.replace("/ /g", "_").toLowerCase;
+    fileName = name.replace(/\s/g, "_").toLowerCase();
     template = `${fileName}_${startDate.year}_${startDate.month}`
   } else {
     first = start;
@@ -63,28 +63,28 @@ const createRange = (name, start, end, type) => {
 
 };
 
-const createRequest = async (filename, merchantAccount, wsUser, wsPassword) => {
+const fetchReports = async ({name, type}, {merchantAccount, username, password, start, end}) => {
+  const fileNames = createRange(name, start, end, type);
+  console.log(fileNames);
   try {
     const options = {
-      url: `https://${wsUser}:${wsPassword}@ca-test.adyen.com/reports/download/MerchantAccount/${merchantAccount}/${filename}`,
-      method: "GET",
-      json: true
+      url: `${API_BASE_URL}/reports`,
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        merchantAccount,
+        fileNames,
+        username,
+        password
+      })
     };
 
     return await request(options);
   } catch (err) {
-    console.error('Error submitting request for', filename);
-  }
-  //"https:\/\/ca-test.adyen.com\/reports\/download\/MerchantAccount\/[merchantAccountCode]\/settlement_detail_report_batch_12.csv"
-};
-
-const fetchReports = async ({name, type}, {merchantAccount, username, password, start, end }) => {
-  const fileNames = createRange(name, start, end, type);
-  console.log(fileNames);
-  return;
-  // return Promise.all(fileNames.map(async filename => {
-  //   return createRequest(filename, merchantAccount, username, password);
-  // }));
+    console.error('Error fetching reports', err.message);
+  };
 };
 
 export {
